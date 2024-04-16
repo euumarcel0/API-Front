@@ -1,0 +1,395 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "API de Gerenciamento de Recursos em Nuvem",
+    "description": "API para gerenciar recursos em nuvem utilizando Flask",
+    "version": "1.0"
+  },
+  "tags": [
+    {
+      "name": "Azure",
+      "description": "Endpoints relacionados à Azure"
+    },
+    {
+      "name": "AWS",
+      "description": "Endpoints relacionados à AWS"
+    }
+  ],
+  "paths": {
+    "/azure/criar-grupo-recursos": {
+      "post": {
+        "summary": "Cria um Grupo de Recursos na Azure",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Grupo de Recursos criado com sucesso"
+          },
+          "500": {
+            "description": "Erro ao criar Grupo de Recursos"
+          }
+        },
+        "tags": ["Azure"]
+      }
+    },
+    "/azure/criar-conta-armazenamento": {
+      "post": {
+        "summary": "Cria uma Conta de Armazenamento na Azure",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Conta de Armazenamento criada com sucesso"
+          },
+          "500": {
+            "description": "Erro ao criar Conta de Armazenamento"
+          }
+        },
+        "tags": ["Azure"]
+      }
+    },
+    "/azure/criar-vnet": {
+      "post": {
+        "summary": "Cria uma VNET na Azure",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "VNET criada com sucesso"
+          },
+          "500": {
+            "description": "Erro ao criar VNET"
+          }
+        },
+        "tags": ["Azure"]
+      }
+    },
+    "/azure/criar-subrede-publica": {
+      "post": {
+        "summary": "Cria uma Subrede Pública na Azure",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Subrede Pública criada com sucesso"
+          },
+          "500": {
+            "description": "Erro ao criar Subrede Pública"
+          }
+        },
+        "tags": ["Azure"]
+      }
+    },
+    "/azure/criar-subrede-privada": {
+      "post": {
+        "summary": "Cria uma Subrede Privada na Azure",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Subrede Privada criada com sucesso"
+          },
+          "500": {
+            "description": "Erro ao criar Subrede Privada"
+          }
+        },
+        "tags": ["Azure"]
+      }
+    },
+    "/azure/criar-grupo-seguranca-linux": {
+      "post": {
+        "summary": "Cria um Grupo de Segurança Linux na Azure",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Grupo de Segurança Linux criado com sucesso"
+          },
+          "500": {
+            "description": "Erro ao criar Grupo de Segurança Linux"
+          }
+        },
+        "tags": ["Azure"]
+      }
+    },
+    "/azure/criar-grupo-seguranca-windows": {
+      "post": {
+        "summary": "Cria um Grupo de Segurança Windows na Azure",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Grupo de Segurança Windows criado com sucesso"
+          },
+          "500": {
+            "description": "Erro ao criar Grupo de Segurança Windows"
+          }
+        },
+        "tags": ["Azure"]
+      }
+    },
+    "/azure/criar-interface-ip-linux": {
+      "post": {
+        "summary": "Cria uma Interface de IP Público Linux na Azure",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Interface de IP Público Linux criada e associada com sucesso"
+          },
+          "500": {
+            "description": "Erro ao criar Interface de IP Público Linux"
+          }
+        },
+        "tags": ["Azure"]
+      }
+    },
+    "/azure/criar-interface-ip-windows": {
+      "post": {
+        "summary": "Cria uma Interface de IP Público Windows na Azure",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Interface de IP Público Windows criada e associada com sucesso"
+          },
+          "500": {
+            "description": "Erro ao criar Interface de IP Público Windows"
+          }
+        },
+        "tags": ["Azure"]
+      }
+    },
+    "/azure/criar-maquina-virtual-linux": {
+      "post": {
+        "summary": "Cria uma Máquina Virtual Linux na Azure",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Máquina Virtual Linux criada com sucesso"
+          },
+          "500": {
+            "description": "Erro ao criar Máquina Virtual Linux"
+          }
+        },
+        "tags": ["Azure"]
+      }
+    },
+    "/azure/criar-maquina-virtual-windows": {
+      "post": {
+        "summary": "Cria uma Máquina Virtual Windows na Azure",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Máquina Virtual Windows criada com sucesso"
+          },
+          "500": {
+            "description": "Erro ao criar Máquina Virtual Windows"
+          }
+        },
+        "tags": ["Azure"]
+      }
+    },
+    "/azure/criar-load-balancer": {
+      "post": {
+        "summary": "Cria um Load Balancer na Azure",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Load Balancer criado com sucesso"
+          },
+          "500": {
+            "description": "Erro ao criar Load Balancer"
+          }
+        },
+        "tags": ["Azure"]
+      }
+    },
+    "/azure/destruir-recursos": {
+      "post": {
+        "summary": "Destroi todos os recursos na Azure",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Recursos na Azure destruídos com sucesso"
+          },
+          "500": {
+            "description": "Erro ao destruir recursos na Azure"
+          }
+        },
+        "tags": ["Azure"]
+      }
+    },
+    "/aws/vpc": {
+      "post": {
+        "summary": "Cria uma VPC na AWS",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "VPC criada com sucesso"
+          },
+          "500": {
+            "description": "Erro ao criar VPC"
+          }
+        },
+        "tags": ["AWS"]
+      }
+    },
+    "/aws/Subrede Privada": {
+      "post": {
+        "summary": "Cria uma Subrede Privada na AWS",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Subrede Privada criada com sucesso"
+          },
+          "500": {
+            "description": "Erro ao criar Subrede Privada"
+          }
+        },
+        "tags": ["AWS"]
+      }
+    },
+    "/aws/Subrede Pública": {
+      "post": {
+        "summary": "Cria uma Subrede Pública na AWS",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Subrede Pública criada com sucesso"
+          },
+          "500": {
+            "description": "Erro ao criar Subrede Pública"
+          }
+        },
+        "tags": ["AWS"]
+      }
+    },
+    "/aws/Gateway": {
+      "post": {
+        "summary": "Cria um Gateway de Internet na AWS",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Gateway de Internet criado com sucesso"
+          },
+          "500": {
+            "description": "Erro ao criar Gateway de Internet"
+          }
+        },
+        "tags": ["AWS"]
+      }
+    },
+    "/aws/Tabela de Rota": {
+      "post": {
+        "summary": "Cria uma Tabela de Rotas na AWS",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Tabela de Rotas criada com sucesso"
+          },
+          "500": {
+            "description": "Erro ao criar Tabela de Rotas"
+          }
+        },
+        "tags": ["AWS"]
+      }
+    },
+    "/aws/Associar Tabela de Rota": {
+      "post": {
+        "summary": "Associa uma Subrede Pública à Tabela de Rotas na AWS",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Subrede Pública associada à Tabela de Rotas com sucesso"
+          },
+          "500": {
+            "description": "Erro ao associar Subrede Pública à Tabela de Rotas"
+          }
+        },
+        "tags": ["AWS"]
+      }
+    },
+    "/aws/Grupo de Segurança Linux": {
+      "post": {
+        "summary": "Cria um Grupo de Segurança Linux na AWS",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Grupo de Segurança Linux criado com sucesso"
+          },
+          "500": {
+            "description": "Erro ao criar Grupo de Segurança Linux"
+          }
+        },
+        "tags": ["AWS"]
+      }
+    },
+    "/aws/Grupo de Segurança Windows": {
+      "post": {
+        "summary": "Cria um Grupo de Segurança Windows na AWS",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Grupo de Segurança Windows criado com sucesso"
+          },
+          "500": {
+            "description": "Erro ao criar Grupo de Segurança Windows"
+          }
+        },
+        "tags": ["AWS"]
+      }
+    },
+    "/aws/Máquina Virtual Linux": {
+      "post": {
+        "summary": "Cria uma Instância EC2 Linux na AWS",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Instância EC2 Linux criada com sucesso"
+          },
+          "500": {
+            "description": "Erro ao criar Instância EC2 Linux"
+          }
+        },
+        "tags": ["AWS"]
+      }
+    },
+    "/aws/Máquina Virtual Windows": {
+      "post": {
+        "summary": "Cria uma Instância EC2 Windows na AWS",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Instância EC2 Windows criada com sucesso"
+          },
+          "500": {
+            "description": "Erro ao criar Instância EC2 Windows"
+          }
+        },
+        "tags": ["AWS"]
+      }
+    },
+    "/aws/Load Balancer": {
+      "post": {
+        "summary": "Cria um Load Balancer na AWS",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Load Balancer criado com sucesso"
+          },
+          "500": {
+            "description": "Erro ao criar Load Balancer"
+          }
+        },
+        "tags": ["AWS"]
+      },
+      "/aws/destruir-recursos": {
+        "post": {
+          "summary": "Destroi todos os recursos na AWS",
+          "parameters": [],
+          "responses": {
+            "200": {
+              "description": "Recursos na AWS destruídos com sucesso"
+            },
+            "500": {
+              "description": "Erro ao destruir recursos na AWS"
+            }
+          },
+          "tags": ["AWS"]
+        }
+      }
+    }
+  }
+}

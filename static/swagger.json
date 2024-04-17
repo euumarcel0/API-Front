@@ -374,21 +374,21 @@
           }
         },
         "tags": ["AWS"]
-      },
-      "/aws/destruir-recursos": {
-        "post": {
-          "summary": "Destroi todos os recursos na AWS",
-          "parameters": [],
-          "responses": {
-            "200": {
-              "description": "Recursos na AWS destruídos com sucesso"
-            },
-            "500": {
-              "description": "Erro ao destruir recursos na AWS"
-            }
+      }
+    },
+    "/aws/destruir-recursos": {
+      "post": {
+        "summary": "Destroi todos os recursos na AWS",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Recursos na AWS destruídos com sucesso"
           },
-          "tags": ["AWS"]
-        }
+          "500": {
+            "description": "Erro ao destruir recursos na AWS"
+          }
+        },
+        "tags": ["AWS"]
       }
     }
   }

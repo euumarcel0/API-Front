@@ -40,8 +40,8 @@ swaggerui_blueprint = get_swaggerui_blueprint(
 # Registra a blueprint para a documentação Swagger
 app.register_blueprint(swaggerui_blueprint, url_prefix=SWAGGER_URL)
 
-
-def atualizar_variables_tf(dados_variavel, diretorio):
+# Atualizar Nomes
+def atualizar_nomes_tf(dados_variavel, diretorio):
     arquivo_variables_tf = os.path.join(diretorio, "variables.tf")
     with open(arquivo_variables_tf, 'r') as file:
         lines = file.readlines()
@@ -85,7 +85,52 @@ def atualizar_variables_tf(dados_variavel, diretorio):
 
     with open(arquivo_variables_tf, 'w') as file:
         file.writelines(lines)
-        
+
+# Atualizar endereços
+def atualizar_endereco_tf(dados_variavel, diretorio):
+    arquivo_variables_tf = os.path.join(diretorio, "variables.tf")
+    with open(arquivo_variables_tf, 'r') as file:
+        lines = file.readlines()
+
+    variavel_existente = False
+    for i, line in enumerate(lines):
+        if line.strip().startswith(f'variable "{dados_variavel["nome"]}"'):
+            variavel_existente = True
+            # Encontrou a definição da variável, vamos verificar se o código existente está presente
+            start_index = i
+            end_index = None
+            for j in range(i, len(lines)):
+                if lines[j].strip() == '}':
+                    end_index = j
+                    break
+
+            if end_index is not None:
+                # O código existente está presente, vamos atualizar o valor padrão se necessário
+                for k in range(i, end_index):
+                    if lines[k].strip().startswith('default'):
+                        lines[k] = f'  default     = {dados_variavel["valor"]}\n'
+                        break
+                else:
+                    lines.insert(end_index, f'  default     = "{dados_variavel["valor"]}"\n')
+            else:
+                # Não foi encontrado o final da definição da variável, substituiremos toda a definição
+                lines[i] = f'variable "{dados_variavel["nome"]}" {{\n'
+                lines[i] += f'  description = "Descricao da variavel {dados_variavel["nome"]}"\n'
+                lines[i] += f'  default     = "{dados_variavel["valor"]}"\n'
+                lines[i] += '}\n'
+            break
+
+    if not variavel_existente:
+        # Se a variável não existir, adicionamos uma nova entrada no final do arquivo
+        nova_variavel = f'variable "{dados_variavel["nome"]}" {{\n'
+        nova_variavel += f'  description = "Descricao da variavel {dados_variavel["nome"]}"\n'
+        nova_variavel += f'  default     = "{dados_variavel["valor"]}"\n'
+        nova_variavel += '}\n'
+        # Adicionamos a nova variável apenas se não existir no arquivo
+        lines.append(nova_variavel)
+
+    with open(arquivo_variables_tf, 'w') as file:
+        file.writelines(lines)
 # ----------------------------------------------------AZURE-----------------------------------------------------------#
 
 # Endpoint para criar um Grupo de Recursos na Azure
@@ -95,8 +140,8 @@ def criar_grupo_recursos_azure():
     nome_grupo_recursos = dados['nome']
     regiao_grupo_recursos = dados['regiao']
     terraform_dir = './azure/'
-    atualizar_variables_tf({"nome": "nome_grupo_recursos", "valor": nome_grupo_recursos }, terraform_dir)
-    atualizar_variables_tf({"nome": "regiao", "valor": regiao_grupo_recursos}, terraform_dir)  
+    atualizar_nomes_tf({"nome": "nome_grupo_recursos", "valor": nome_grupo_recursos }, terraform_dir)
+    atualizar_nomes_tf({"nome": "regiao", "valor": regiao_grupo_recursos}, terraform_dir)  
     try:
         subprocess.run(['terraform', 'apply', '-auto-approve', '-target=azurerm_resource_group.Grupo_de_recursos'], cwd=terraform_dir, check=True)
         return jsonify({"message": "Grupo de Recursos criado com sucesso!"}), 200
@@ -109,7 +154,7 @@ def criar_conta_armazenamento_azure():
     dados = request.json
     nome_conta_armazenamento = dados['nome']
     terraform_dir = './azure/'
-    atualizar_variables_tf({"nome": "nome_conta_armazenamento", "valor": nome_conta_armazenamento}, terraform_dir)
+    atualizar_nomes_tf({"nome": "nome_conta_armazenamento", "valor": nome_conta_armazenamento}, terraform_dir)
     try:
         subprocess.run(['terraform', 'apply', '-auto-approve', '-target=azurerm_storage_account.Conta_de_armazenamento'], cwd=terraform_dir, check=True)
         return jsonify({"message": "Conta de Armazenamento criada com sucesso!"}), 200
@@ -121,18 +166,14 @@ def criar_conta_armazenamento_azure():
 def criar_vnet_azure():
     dados = request.json
     nome_vnet = dados['nome']
-    
-    # Endereço IP fornecido pelo usuário
     endereco_usuario = dados['endereco']
-    
-    # Remover as aspas do endereço fornecido pelo usuário
-    endereco_vnet = endereco_usuario.replace('"', '')
+    endereco_vnet = "[" + "\"" + endereco_usuario + "\"" + "]"   
 
     terraform_dir = './azure/'
     
     # Atualizar as variáveis no arquivo variables.tf
-    atualizar_variables_tf({"nome": "nome_vnet", "valor": nome_vnet}, terraform_dir)
-    atualizar_variables_tf({"nome": "endereco_vnet", "valor": endereco_vnet}, terraform_dir)
+    atualizar_nomes_tf({"nome": "nome_vnet", "valor": nome_vnet}, terraform_dir)
+    atualizar_endereco_tf({"nome": "endereco_vnet", "valor": endereco_vnet}, terraform_dir)
     
     try:
         # Executar o Terraform
@@ -147,9 +188,11 @@ def criar_subrede_publica_azure():
     dados = request.json
     nome_subrede_publica = dados['nome']
     endereco_subrede_publica = dados['endereco']
+    endereco_subpub = "[" + "\"" + endereco_subrede_publica + "\"" + "]"  
+    
     terraform_dir = './azure/'
-    atualizar_variables_tf({"nome": "nome_subrede_publica", "valor": nome_subrede_publica}, terraform_dir)
-    atualizar_variables_tf({"nome": "endereco_subrede_publica", "valor": endereco_subrede_publica}, terraform_dir)
+    atualizar_nomes_tf({"nome": "nome_subrede_publica", "valor": nome_subrede_publica}, terraform_dir)
+    atualizar_endereco_tf({"nome": "endereco_subrede_publica", "valor": endereco_subpub}, terraform_dir)
     try:
         subprocess.run(['terraform', 'apply', '-auto-approve', '-target=azurerm_subnet.Subrede_Publica'], cwd=terraform_dir, check=True)
         return jsonify({"message": "Subrede Pública criada com sucesso!"}), 200
@@ -162,9 +205,12 @@ def criar_subrede_privada_azure():
     dados = request.json
     nome_subrede_privada = dados['nome']
     endereco_subrede_privada = dados['endereco']
+    endereco_subpri = "[" + "\"" + endereco_subrede_privada + "\"" + "]" 
+    
     terraform_dir = './azure/'
-    atualizar_variables_tf({"nome": "nome_subrede_privada", "valor": nome_subrede_privada}, terraform_dir)
-    atualizar_variables_tf({"nome": "endereco_subrede_privada", "valor": endereco_subrede_privada}, terraform_dir)
+    
+    atualizar_nomes_tf({"nome": "nome_subrede_privada", "valor": nome_subrede_privada}, terraform_dir)
+    atualizar_endereco_tf({"nome": "endereco_subrede_privada", "valor": endereco_subpri}, terraform_dir)
     try:
         subprocess.run(['terraform', 'apply', '-auto-approve', '-target=azurerm_subnet.Subrede_Privada'], cwd=terraform_dir, check=True)
         return jsonify({"message": "Subrede Privada criada com sucesso!"}), 200
@@ -177,7 +223,7 @@ def criar_grupo_seguranca_linux_azure():
     dados = request.json
     nome_grupo_seguranca_linux = dados['nome']
     terraform_dir = './azure/'
-    atualizar_variables_tf({"nome": "nome_grupo_seguranca_linux", "valor": nome_grupo_seguranca_linux}, terraform_dir)
+    atualizar_nomes_tf({"nome": "nome_grupo_seguranca_linux", "valor": nome_grupo_seguranca_linux}, terraform_dir)
     try:
         subprocess.run(['terraform', 'apply', '-auto-approve', '-target=azurerm_network_security_group.Grupo_de_Seguranca_Linux'], cwd=terraform_dir, check=True)
         return jsonify({"message": "Grupo de Segurança Linux criado com sucesso!"}), 200
@@ -190,7 +236,7 @@ def criar_grupo_seguranca_windows_azure():
     dados = request.json
     nome_grupo_seguranca_windows = dados['nome']
     terraform_dir = './azure/'
-    atualizar_variables_tf({"nome": "nome_grupo_seguranca_windows", "valor": nome_grupo_seguranca_windows}, terraform_dir)
+    atualizar_nomes_tf({"nome": "nome_grupo_seguranca_windows", "valor": nome_grupo_seguranca_windows}, terraform_dir)
     try:
         subprocess.run(['terraform', 'apply', '-auto-approve', '-target=azurerm_network_security_group.Grupo_de_Seguranca_Windows'], cwd=terraform_dir, check=True)
         return jsonify({"message": "Grupo de Segurança Windows criado com sucesso!"}), 200
@@ -203,7 +249,7 @@ def criar_interface_ip_linux_azure():
     dados = request.json
     nome_interface_ip_linux = dados['nome']
     terraform_dir = './azure/'
-    atualizar_variables_tf({"nome": "nome_interface_ip_linux", "valor": nome_interface_ip_linux}, terraform_dir)
+    atualizar_nomes_tf({"nome": "nome_interface_ip_linux", "valor": nome_interface_ip_linux}, terraform_dir)
     try:
         subprocess.run(['terraform', 'apply', '-auto-approve', '-target=azurerm_public_ip.public_ip_linux', '-target=azurerm_network_interface.Interface_de_rede_Linux'], cwd=terraform_dir, check=True)
         return jsonify({"message": "Interface de IP Público Linux criada e associada com sucesso!"}), 200
@@ -216,7 +262,7 @@ def criar_interface_ip_windows_azure():
     dados = request.json
     nome_interface_ip_windows = dados['nome']
     terraform_dir = './azure/'
-    atualizar_variables_tf({"nome": "nome_interface_ip_windows", "valor": nome_interface_ip_windows}, terraform_dir)
+    atualizar_nomes_tf({"nome": "nome_interface_ip_windows", "valor": nome_interface_ip_windows}, terraform_dir)
     try:
         subprocess.run(['terraform', 'apply', '-auto-approve', '-target=azurerm_public_ip.public_ip_windows', '-target=azurerm_network_interface.Interface_de_rede_Windows'], cwd=terraform_dir, check=True)
         return jsonify({"message": "Interface de IP Público Windows criada e associada com sucesso!"}), 200
@@ -231,9 +277,9 @@ def criar_maquina_virtual_linux_azure():
     nome_usuario_linux = dados ['usuario']
     senha_usuario_linux = dados['senha']
     terraform_dir = './azure/'
-    atualizar_variables_tf({"nome": "nome_maquina_virtual_linux", "valor": nome_maquina_virtual_linux}, terraform_dir)
-    atualizar_variables_tf({"nome": "nome_usuario_linux", "valor": nome_usuario_linux}, terraform_dir)
-    atualizar_variables_tf({"nome": "senha_usuario_linux", "valor": senha_usuario_linux}, terraform_dir)
+    atualizar_nomes_tf({"nome": "nome_maquina_virtual_linux", "valor": nome_maquina_virtual_linux}, terraform_dir)
+    atualizar_nomes_tf({"nome": "nome_usuario_linux", "valor": nome_usuario_linux}, terraform_dir)
+    atualizar_nomes_tf({"nome": "senha_usuario_linux", "valor": senha_usuario_linux}, terraform_dir)
     try:
         subprocess.run(['terraform', 'apply', '-auto-approve', '-target=azurerm_linux_virtual_machine.linux'], cwd=terraform_dir, check=True)
         return jsonify({"message": "Máquina Virtual Linux criada com sucesso!"}), 200
@@ -248,9 +294,9 @@ def criar_maquina_virtual_windows_azure():
     nome_usuario_windows = dados ['usuario']
     senha_usuario_windows = dados['senha']
     terraform_dir = './azure/'
-    atualizar_variables_tf({"nome": "nome_maquina_virtual_windows", "valor": nome_maquina_virtual_windows}, terraform_dir)
-    atualizar_variables_tf({"nome": "nome_usuario_windows", "valor": nome_usuario_windows}, terraform_dir)
-    atualizar_variables_tf({"nome": "senha_usuario_windows", "valor": senha_usuario_windows}, terraform_dir)
+    atualizar_nomes_tf({"nome": "nome_maquina_virtual_windows", "valor": nome_maquina_virtual_windows}, terraform_dir)
+    atualizar_nomes_tf({"nome": "nome_usuario_windows", "valor": nome_usuario_windows}, terraform_dir)
+    atualizar_nomes_tf({"nome": "senha_usuario_windows", "valor": senha_usuario_windows}, terraform_dir)
     try:
         subprocess.run(['terraform', 'apply', '-auto-approve', '-target=azurerm_windows_virtual_machine.windows'], cwd=terraform_dir, check=True)
         return jsonify({"message": "Máquina Virtual Windows criada com sucesso!"}), 200
@@ -263,7 +309,7 @@ def criar_load_balancer_azure():
     dados = request.json
     nome_load_balancer = dados['nome']
     terraform_dir = './azure/'
-    atualizar_variables_tf({"nome": "nome_load_balancer", "valor": nome_load_balancer}, terraform_dir)
+    atualizar_nomes_tf({"nome": "nome_load_balancer", "valor": nome_load_balancer}, terraform_dir)
     try:
         subprocess.run(['terraform', 'apply', '-auto-approve', 
                         '-target=azurerm_public_ip.ip_publico_lb',
@@ -275,8 +321,10 @@ def criar_load_balancer_azure():
                         '-target=azurerm_lb_probe.lb_probe',
                         '-target=azurerm_lb_rule.lb_regas',
                         '-target=azurerm_public_ip.vm_public_ip',
-                        '-target=azurerm_network_interface_backend_address_pool_association.nic_pool',
-                        '-target=azurerm_network_interface.ip_vms'], cwd=terraform_dir, check=True)
+                        '-target=azurerm_linux_virtual_machine.linuxlb',
+                        '-target=azurerm_network_interface.vm_network_interface',
+                        '-target=azurerm_network_interface_backend_address_pool_association.pool_association'
+                        ], cwd=terraform_dir, check=True)
         return jsonify({"message": "Load Balancer criado com sucesso!"}), 200
     except subprocess.CalledProcessError as e:
         return jsonify({"error": f"Erro ao criar Load Balancer: {e}"}), 500

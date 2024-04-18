@@ -4,46 +4,46 @@ provider "azurerm" {
 
 # Criar Grupo de Recursos
 resource "azurerm_resource_group" "Grupo_de_recursos" {
-  name     = "apis"
-  location = "East US"
+  name     = var.nome_grupo_recursos
+  location = var.regiao
 }
 
 # Criar Conta de Armazenamento
 resource "azurerm_storage_account" "Conta_de_armazenamento" {
-  name                     = "apirodandosss"
-  resource_group_name      = azurerm_resource_group.Grupo_de_recursos.name
-  location                 = azurerm_resource_group.Grupo_de_recursos.location
+  name                     = var.nome_conta_armazenamento
+  resource_group_name      = var.nome_grupo_recursos
+  location                 = var.regiao
   account_tier             = "Standard"
   account_replication_type = "LRS"
 }
 
 # Criar VNET
 resource "azurerm_virtual_network" "VNET" {
-  name                = "VNET_Azure"
-  address_space       = ["172.16.0.0/16"]
-  location            = "East US"
+  name                = var.nome_vnet
+  address_space       = var.endereco_vnet
+  location            = azurerm_resource_group.Grupo_de_recursos.location
   resource_group_name = azurerm_resource_group.Grupo_de_recursos.name
 }
 
 # Criar Subrede Pública
 resource "azurerm_subnet" "Subrede_Publica" {
-  name                 = "SubredePub"
+  name                 = var.nome_subrede_publica
   virtual_network_name = azurerm_virtual_network.VNET.name
   resource_group_name  = azurerm_resource_group.Grupo_de_recursos.name
-  address_prefixes     = ["172.16.1.0/24"]
+  address_prefixes     = var.endereco_subrede_publica
 }
 
 # Criar Subrede Privada
 resource "azurerm_subnet" "Subrede_Privada" {
-  name                 = "SubredePri"
+  name                 = var.nome_subrede_privada
   virtual_network_name = azurerm_virtual_network.VNET.name
   resource_group_name  = azurerm_resource_group.Grupo_de_recursos.name
-  address_prefixes     = ["172.16.2.0/24"]
+  address_prefixes     = var.endereco_subrede_privada
 }
 
 # Criar Grupo de Segurança
 resource "azurerm_network_security_group" "Grupo_de_Seguranca_Linux" {
-  name                = "Grupo_de_Seguranca_Linux"  
+  name                = var.nome_grupo_seguranca_linux 
   location            = azurerm_resource_group.Grupo_de_recursos.location
   resource_group_name = azurerm_resource_group.Grupo_de_recursos.name
 
@@ -62,7 +62,7 @@ resource "azurerm_network_security_group" "Grupo_de_Seguranca_Linux" {
 
 # Criar Grupo de Segurança para Windows
 resource "azurerm_network_security_group" "Grupo_de_Seguranca_Windows" {
-  name                = "Grupo_de_Seguranca_Windows" 
+  name                = var.nome_grupo_seguranca_windows
   location            = azurerm_resource_group.Grupo_de_recursos.location
   resource_group_name = azurerm_resource_group.Grupo_de_recursos.name
 
@@ -89,7 +89,7 @@ resource "azurerm_public_ip" "public_ip_linux" {
 
 # Criar Interface de rede e Associar IP público na interface Linux
 resource "azurerm_network_interface" "Interface_de_rede_Linux" {
- name                      = "Interface_de_rede_Linux"
+ name                      = var.nome_interface_ip_linux
  location                 = azurerm_resource_group.Grupo_de_recursos.location
  resource_group_name       = azurerm_resource_group.Grupo_de_recursos.name
 
@@ -111,7 +111,7 @@ resource "azurerm_public_ip" "public_ip_windows" {
 
 # Criar Interface de rede e Associar IP público na interface Windows
 resource "azurerm_network_interface" "Interface_de_rede_Windows" {
- name                      = "Interface_de_rede_Windows"
+ name                      = var.nome_interface_ip_windows
  location                 = azurerm_resource_group.Grupo_de_recursos.location
  resource_group_name       = azurerm_resource_group.Grupo_de_recursos.name
 
@@ -125,14 +125,14 @@ resource "azurerm_network_interface" "Interface_de_rede_Windows" {
 
 # Criar Maquina Virtual Linux
 resource "azurerm_linux_virtual_machine" "linux" {
-  name                = "linux"
+  name                = var.nome_maquina_virtual_linux
   resource_group_name = azurerm_resource_group.Grupo_de_recursos.name
   location            = azurerm_resource_group.Grupo_de_recursos.location
   size                = "Standard_DS1_v2"
   disable_password_authentication = false
 
-  admin_username = "adminuser"
-  admin_password = "Senai@134@134"
+  admin_username = var.nome_usuario_linux
+  admin_password = var.senha_usuario_linux
 
   network_interface_ids = [
     azurerm_network_interface.Interface_de_rede_Linux.id
@@ -154,12 +154,12 @@ resource "azurerm_linux_virtual_machine" "linux" {
 
 # Criar Maquina Virtual Windows
 resource "azurerm_windows_virtual_machine" "windows" {
- name                = "Windows"
+ name                = var.nome_maquina_virtual_windows
  resource_group_name = azurerm_resource_group.Grupo_de_recursos.name
  location            = azurerm_resource_group.Grupo_de_recursos.location
  size                = "Standard_DS1_v2"
- admin_username      = "adminuser"
- admin_password      = "Senai@134@134"
+ admin_username      = var.nome_usuario_windows
+ admin_password      = var.senha_usuario_windows
 
  network_interface_ids = [
     azurerm_network_interface.Interface_de_rede_Windows.id
@@ -193,7 +193,7 @@ resource "azurerm_public_ip" "ip_publico_lb" {
 
 # Cria um Load Balancer no Azure
 resource "azurerm_lb" "loadb" {
-    name                = "load-balancer"                            # Nome do Load Balancer
+    name                = var.nome_load_balancer                          # Nome do Load Balancer
     resource_group_name = azurerm_resource_group.Grupo_de_recursos.name        # Nome do grupo de recursos associado
     location            = azurerm_resource_group.Grupo_de_recursos.location    # Localização do Load Balancer
     sku                 = "Standard"                                 # SKU do Load Balancer
@@ -342,5 +342,3 @@ chmod +x /cron.sh
 echo '* * * * * root /cron.sh' > /etc/crontab
 EOF
 }
-
-
